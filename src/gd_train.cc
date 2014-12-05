@@ -10,7 +10,7 @@
 
 int main(){
     config();
-    para.maxIter = 1000;
+    para.maxIter = 400;
     Optimizer *optimizer = new GradientDescent();
     optimizer->set_parameter(para);
     optimizer->prepare_optimize(&data);

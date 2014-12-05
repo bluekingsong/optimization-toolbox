@@ -5,10 +5,8 @@
 
 class GradientDescent : public Optimizer{
   public:
-	virtual void optimize(const OptimizePara& optPara);
-	virtual void prepare_optimize(const Problem* data);
-	virtual void post_optimize();
-  protected:
-	double guessInitStep()const;
+    virtual void optimize();
+    virtual void prepare_optimize(const Problem* data);
+    static double guessInitStep(const Real *g,uint32_t n,uint32_t numIter);
 };
 #endif

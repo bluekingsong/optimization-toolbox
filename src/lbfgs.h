@@ -14,6 +14,6 @@ class LBFGS : public Optimizer{
     Real *rho;
     Real *alpha;
     uint32_t m;
-    void calc_bfgs_direction(uint32_t k,double gamma);
+    virtual void calc_bfgs_direction(uint32_t k,double gamma);
 };
 #endif

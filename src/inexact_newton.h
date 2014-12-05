@@ -7,17 +7,20 @@
 
 class InexactNewton : public Optimizer {
   public:
-	virtual void optimize(const OptimizePara& optPara);
-	virtual void prepare_optimize(const Problem* data);
-	virtual void post_optimize();
-	void set_cgPara(const CGPara& para){
-		cgPara = para;
-	}
-	static void unittest();
+    virtual void optimize();
+    virtual void prepare_optimize(const Problem* data);
+    virtual void post_optimize();
+    void set_cgPara(const CGPara& para,double _sampleRatio = 1){
+        cgPara = para;
+        sampleRatio = _sampleRatio;
+        if(hessianMul != 0)    hessianMul->set_sample_size((uint32_t)(_sampleRatio * numData));
+    }
+    static void unittest();
   private:
-	HessianVecProduct *hessianMul;
-	CGSolver *cgSolver;
-	CGPara cgPara;
+    HessianVecProduct *hessianMul;
+    CGSolver *cgSolver;
+    CGPara cgPara;
+    double sampleRatio;
 };
 
 #endif

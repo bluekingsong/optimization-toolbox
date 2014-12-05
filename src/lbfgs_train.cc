@@ -11,16 +11,14 @@
 int main(){
     config();
     Optimizer *optimizer = new LBFGS();
-    double bias_vec[] = {-20,-15,-10,-5,-1,0,1,5,10};
-    int mems[] = { 10,20,30,40,50,60 } ;
-    int n = 6;
+    int mems[] = {5,20,35,50} ;
+    int n = 4;
     for(int i = 0; i < n; ++i){
-    //para.probBias = bias_vec[i];
-    para.BFGS_m = mems[i];
-    optimizer->set_parameter(para);
-    optimizer->prepare_optimize(&data);
-    optimizer->optimize();
-    optimizer->post_optimize();
+        para.BFGS_m = mems[i];
+        optimizer->set_parameter(para);
+        optimizer->prepare_optimize(&data);
+        optimizer->optimize();
+        optimizer->post_optimize();
     }
     delete optimizer;
     data.free_memory();
