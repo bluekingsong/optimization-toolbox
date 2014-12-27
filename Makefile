@@ -1,7 +1,10 @@
-all: lbfgs newton gd sbfgs utest tron
+all: lbfgs newton gd sbfgs utest tron sgd
 
 gd: src/dataset.cc src/gradient_calc.cc src/linear_search.cc src/optimizer.cc src/gradient_descent.cc src/gd_train.cc src/vec_op.cc src/config.h src/cpp_common.cc
 	/usr/bin/g++ src/dataset.cc src/gradient_calc.cc src/linear_search.cc src/optimizer.cc src/gradient_descent.cc src/gd_train.cc src/vec_op.cc src/cpp_common.cc -Isrc -o gd
+
+sgd: src/dataset.cc src/gradient_calc.cc  src/optimizer.cc src/stochastic_gradient_descent.cc src/sgd_train.cc src/vec_op.cc src/config.h src/cpp_common.cc
+	/usr/bin/g++  src/dataset.cc src/gradient_calc.cc  src/optimizer.cc src/stochastic_gradient_descent.cc src/sgd_train.cc src/vec_op.cc src/cpp_common.cc -Isrc -o sgd
 
 lbfgs: src/dataset.cc src/gradient_calc.cc src/linear_search.cc src/optimizer.cc src/lbfgs.cc src/lbfgs_train.cc src/vec_op.cc src/gradient_descent.cc src/config.h src/cpp_common.cc
 	/usr/bin/g++ src/dataset.cc src/gradient_calc.cc src/linear_search.cc src/optimizer.cc src/vec_op.cc src/lbfgs.cc src/lbfgs_train.cc src/gradient_descent.cc src/cpp_common.cc -Isrc -o lbfgs
