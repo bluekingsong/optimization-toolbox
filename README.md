@@ -2,3 +2,5 @@
 
  The results verify the performances of sub-sampled Hessian algorithms in "On the Use of Stochastic Hessian Information in Optimization
 Methods for Machine Learning". 
+
+ ![image](https://github.com/bluekingsong/optimization-toolbox/blob/master/algorithms_comparison.jpg)
