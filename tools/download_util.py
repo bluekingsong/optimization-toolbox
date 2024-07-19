@@ -2,6 +2,7 @@ import requests
 import json
 import time
 from datetime import datetime
+import os
 
 def get_file_list(url, post_content, post_data):
 	post_data = { kv[0] : kv[1] for kv in  [x.split('=') for x in post_data.split(',')] }
@@ -21,7 +22,7 @@ def get_file_list(url, post_content, post_data):
 	file_list = [ line for line in r.text.split('\n') if (not line.startswith('#')) and line != '' ]
 	return file_list
 
-def download_ts_files(video_host, request_content, file_list):
+def download_ts_files(video_host, request_content, file_list, output_path):
 	ts_file_fmt = 'v.f721217'
 	path = None
 	headers = {}
@@ -34,9 +35,11 @@ def download_ts_files(video_host, request_content, file_list):
 			headers[kv[0]] = kv[1].strip()
 	cnt = 0
 	for file_name in file_list:
+		target_filename = '%s/%s'%(output_path, file_name.split('?')[0])
+		if os.path.exists(target_filename):  continue
 		r = requests.get(video_host + path + file_name, headers=headers)
 		if r.status_code == 200:
-			with open('ts_files/%s'%(file_name.split('?')[0]), 'wb') as fout:
+			with open(target_filename, 'wb') as fout:
 				fout.write(r.content)
 			time.sleep(1)
 		print('download file_name=', file_name.split('?')[0], 'status_code=', r.status_code, datetime.now())
@@ -56,12 +59,13 @@ Referer: http://live.hbang.com.cn/www/?_v=422
 Content-Length: 24
 Cookie: Hm_lpvt_ef01d7b5a9da74545c443d32045bac52=1719205672; Hm_lvt_ef01d7b5a9da74545c443d32045bac52=1719193221; bonnypptk=tk_d4e4693fd763d43f1a47bae8653ad7b8d7799496
 '''
-post_data='''videoId=3603306963441061'''
+post_data='''videoId=%s'''
 
+video_id = 3603306963441061
 
 video_host = 'http://1303027007.vod2.myqcloud.com'
 
-request_content = '''GET /419f3a61vodtranscq1303027007/260451621253642698149042803/v.f721217_0.ts?exper=&rlimit=3&sign=a9376b8b08c3c75938dd183142388af7&t=667958df&us=42378754 HTTP/1.1
+request_content = '''GET /419f3a61vodtranscq1303027007/%s/v.f721217_0.ts?exper=&rlimit=3&sign=%s&t=%s&us=%s HTTP/1.1
 Host: 1303027007.vod2.myqcloud.com
 Accept-Language: zh-CN,zh-Hans;q=0.9
 X-Playback-Session-Id: 6BCF16D4-F76C-4092-A59A-5CBBEDDFCABB
@@ -70,8 +74,21 @@ User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 17_5_1 like Mac OS X) AppleWebKit
 Referer: http://live.hbang.com.cn/
 Accept-Encoding: identity
 Connection: Keep-Alive'''
+server_path = '260451621253642698149042803'
+sign = 'a9376b8b08c3c75938dd183142388af7'
+t='667958df'
+us='42378754'
 
 
-file_names = get_file_list(post_url, post_content, post_data)
-download_ts_files(video_host, request_content, file_names)
+output_path = 'bwf_world_tour_finals_2023'
+video_id = 3448789369237061
+server_path = '13c576ba3270835013821385460'
+sign = 'c14d180facc4914551e57a1ee8791af3'
+t='669a2569'
+us='38065323'
+
+
+file_names = get_file_list(post_url, post_content, post_data%(video_id))
+
+download_ts_files(video_host, request_content%(server_path, sign, t, us), file_names, output_path)
 
