@@ -11,12 +11,23 @@ from moviepy.editor import VideoFileClip, concatenate_videoclips
 import sys
 
 ts_file_fmt = 'bwf_world_tour_finals_2023/ts_files/v.f721217_%d.ts'
-ts_file_list = [ (x, ts_file_fmt%(x)) for x in range(1144, 2267) ]
-start_rally_cnt = 612
+ts_file_list = [ (x, ts_file_fmt%(x)) for x in range(1603, 2267) ]
+start_rally_cnt = 744
 rally_prefix = 'bwf_world_tour_finals_2023/rallys/wtf2023'
 def get_score(result, latest_score, hint):
     score, new_hint = None, None
+    if result is not None and any([x[1][0].find('Challen') >= 0 for x in result] + [x[1][0].find('Remain') >= 0 for x in result]):
+        print('Chanllenges, drop score', [x[1][0] for x in result])
+        return score, new_hint
     if result is not None:
+        #modify for concat digits
+        new_result = list()
+        for item in result:
+            if item[1][0].replace(' ', '').isdigit() and len(item[1][0].replace(' ', '')) == 4:
+                new_result.append((item[0], (item[1][0].replace(' ', '')[0:2], item[1][1])))
+                new_result.append((item[0], (item[1][0].replace(' ', '')[2:4], item[1][1])))
+            else:    new_result.append(item)
+        result = new_result
         if len(result) >= 4 and len(result) % 2 == 0:
             num_match = (len(result) - 2) // 2
             if result[num_match][1][0].isdigit() and result[num_match + 1 + num_match][1][0].isdigit():
@@ -44,12 +55,13 @@ def get_score(result, latest_score, hint):
                     if score[0] not in (latest_score[0], latest_score[0] + 1) or score[1] not in (latest_score[1], latest_score[1] + 1):
                         print('drop hint score=%s latest_score=%s'%(score, latest_score))
                         score = None  # not confidence
+                if score1 < 0 or score2 < 0 or score1 >= 50 or score2 >= 50:   score = None
     if new_hint is None:   new_hint = hint
     return score, new_hint
 
 def rally_detect(ts_file_list, rally_cnt = 0):
     ocr = PaddleOCR(use_angle_cls=False, lang="en", drop_score=0.3)  # need to run only once to download and load model into memory
-    tx, ty = 500, 160
+    tx, ty = 500, 200 #160
     latest_score, hint = None, None
     rally = None
     rally_filename = None
@@ -147,11 +159,11 @@ def write_rally(rally, rally_filename):
 rally_detect(ts_file_list, start_rally_cnt)
 
 def t():
-    ts_filename = 'bwf_world_tour_finals_2023/ts_files/v.f721217_1144.ts'
+    ts_filename = 'bwf_world_tour_finals_2023/ts_files/v.f721217_1603.ts'
     cap = cv2.VideoCapture(ts_filename)
     frame_cnt = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     ocr = PaddleOCR(use_angle_cls=False, lang="en", drop_score=0.3)  # need to run only once to download and load model into memory
-    tx, ty = 500, 160
+    tx, ty = 500, 200 #160
     flag = True
     frame_index = 0
     latest_score, hint = None, None
@@ -168,4 +180,4 @@ def t():
             print('frame_index=', frame_index, latest_score, score, hint,  ['%s'%(x[1][0]) for x in result])
             if score:   latest_score = score
 
-#t()
+t()
