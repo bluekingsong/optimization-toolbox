@@ -47,7 +47,7 @@ def get_score(result, latest_score, hint):
                     new_hint = None
                     score = None
                 if latest_score is not None and score is not None:
-                    if score[0] not in (latest_score[0], latest_score[0] + 1) or score[1] not in (latest_score[1], latest_score[1] + 1):
+                    if sum(score) - sum(latest_score) < 0 or sum(score) - sum(latest_score) > 1:
                         print('drop score=%s latest_score=%s'%(score, latest_score))
                         score = None  # not confidence
         elif hint is not None:
@@ -61,7 +61,7 @@ def get_score(result, latest_score, hint):
             if score1 is not None and score2 is not None:
                 score = (score1, score2)
                 if latest_score is not None:
-                    if score[0] not in (latest_score[0], latest_score[0] + 1) or score[1] not in (latest_score[1], latest_score[1] + 1):
+                    if sum(score) - sum(latest_score) < 0 or sum(score) - sum(latest_score) > 1:
                         print('drop hint score=%s latest_score=%s'%(score, latest_score))
                         score = None  # not confidence
                 if score1 < 0 or score2 < 0 or score1 >= 50 or score2 >= 50:   score = None
@@ -90,6 +90,9 @@ def rally_detect(ts_file_list, rally_cnt = 0):
             if not flag:   break
             if frame_index % 5 != 0:  continue
             box_frame = frame[0:ty, 0:tx, :]
+            if hint is not None:
+                y1, y2 = hint[-1]
+                box_frame[y1 + (y2-y1)//3 : y1 + (y2-y1)//3 * 2, 0:tx, :] = (0, 0, 0)
             result = ocr.ocr(box_frame, cls=False)[0]
             filter_result = list()
             for box_result in (result if result is not None else list()):
@@ -102,7 +105,10 @@ def rally_detect(ts_file_list, rally_cnt = 0):
                 filter_result.append(box_result)
             result = filter_result
             if result is not None:
-                score, hint = get_score(filter_result, latest_score, hint)
+                score, new_hint = get_score(filter_result, latest_score, hint)
+                if hint is None and new_hint is not None:
+                    print('get new hint=', new_hint)
+                hint = new_hint
                 score_trace.append(score)
             else:
                 score_trace.append('NoBox')
@@ -164,7 +170,7 @@ def write_rally(rally, rally_filename):
 rally_detect(ts_file_list, start_rally_cnt)
 
 def t():
-    ts_filename = 'bwf_world_tour_finals_2023/ts_files/v.f721217_1926.ts'
+    ts_filename = 'bwf_world_tour_finals_2023/ts_files/v.f721217_1930.ts'
     cap = cv2.VideoCapture(ts_filename)
     frame_cnt = cap.get(cv2.CAP_PROP_FRAME_COUNT)
     ocr = PaddleOCR(use_angle_cls=False, lang="en", drop_score=0.3)  # need to run only once to download and load model into memory
